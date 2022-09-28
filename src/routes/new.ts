@@ -4,7 +4,9 @@ import {
     requireAuth,
     validateRequest,
     BadRequestError,
-    NotFoundError
+    NotFoundError,
+    UnauthorizedError,
+    OrderStatus
 } from '@frst-ticket-app/common';
 import { Order } from '../models/order';
 
@@ -21,8 +23,23 @@ router.post('/api/payments',
             .isEmpty()
     ],
     validateRequest,
-    (req: Request, res: Response) => {
-        res.send({success: true});
-})
+    async (req: Request, res: Response) => {
+        const { token, orderId } = req.body;
+
+        const order = await Order.findById(orderId);
+        if(!order) {
+            throw new NotFoundError();
+        }
+
+        if(order.userId !== req.currentUser!.id) {
+            throw new UnauthorizedError();
+        }
+
+        if(order.status === OrderStatus.Cancelled) {
+            throw new BadRequestError('Cannot pay for an cancelled order');
+        }
+
+        res.send({ success: true });
+    })
 
 export { router as createChargeRouter };

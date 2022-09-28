@@ -46,10 +46,10 @@ global.getAuthCookie = async () => {
     return cookie;
 };
 
-global.signin = () => {
+global.signin = (id?: string) => {
     // build a JWT payload. 
     const payload = {
-        id: new mongoose.Types.ObjectId().toHexString(),
+        id: id || new mongoose.Types.ObjectId().toHexString(),
         email: 'abcd@abcd.com'
     };
     
