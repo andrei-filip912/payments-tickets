@@ -6,10 +6,11 @@ import jwt from 'jsonwebtoken';
 
 declare global {
     var getAuthCookie: () => Promise<string[]>;
-    var signin: () => string[];
+    var signin: (id?: string) => string[];
 }
 
 jest.mock('../nats-wrapper');
+jest.mock('../stripe');
 
 let mongo: MongoMemoryServer;
 beforeEach(async () => {
@@ -46,10 +47,10 @@ global.getAuthCookie = async () => {
     return cookie;
 };
 
-global.signin = () => {
+global.signin = (id?: string) => {
     // build a JWT payload. 
     const payload = {
-        id: new mongoose.Types.ObjectId().toHexString(),
+        id: id || new mongoose.Types.ObjectId().toHexString(),
         email: 'abcd@abcd.com'
     };
     
